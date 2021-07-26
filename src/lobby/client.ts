@@ -53,7 +53,7 @@ export class LobbyClient {
 
       try {
         details = await response.json();
-      } catch {
+      } catch (error) {
         try {
           details = await response.text();
         } catch (error) {

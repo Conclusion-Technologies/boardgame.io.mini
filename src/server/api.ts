@@ -9,7 +9,7 @@
 import type Koa from 'koa';
 import Router from 'koa-router';
 import koaBody from 'koa-body';
-import { nanoid } from 'nanoid';
+import { nanoid } from 'nanoid/non-secure';
 import cors from '@koa/cors';
 import type IOTypes from 'socket.io';
 import { createMatch } from './util';
