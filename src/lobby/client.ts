@@ -55,6 +55,7 @@ export class LobbyClient {
         details = await response.json();
       } catch (error) {
         try {
+          console.log(error);
           details = await response.text();
         } catch (error) {
           details = error.message;
