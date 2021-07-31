@@ -1,4 +1,4 @@
-import Debug from './debug/Debug.svelte';
+import type Debug from './debug/Debug.svelte';
 import type { _ClientImpl } from './client';
 
 type SubscriptionState = {
