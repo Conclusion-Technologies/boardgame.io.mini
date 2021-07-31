@@ -148,9 +148,10 @@ export class ClientManager {
     let DebugImpl: typeof Debug | undefined;
     let target = document.body;
 
-    if (process.env.NODE_ENV !== 'production') {
-      DebugImpl = Debug;
-    }
+    // commented out because we don't use the debug panel for miniapps
+    // if (process.env.NODE_ENV !== 'production') {
+    //   DebugImpl = Debug;
+    // }
 
     if (client.debugOpt && client.debugOpt !== true) {
       DebugImpl = client.debugOpt.impl || DebugImpl;
