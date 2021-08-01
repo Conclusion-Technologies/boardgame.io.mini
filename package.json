@@ -2,7 +2,7 @@
   "name": "boardgame.io",
   "version": "0.45.2",
   "description": "library for turn-based games",
-  "repository": "https://github.com/boardgameio/boardgame.io",
+  "repository": "https://github.com/Conclusion-Technologies/boardgame.io.mini",
   "scripts": {
     "prestart": "run-p examples:install build",
     "start": "run-p dev:server dev:client",
@@ -30,7 +30,7 @@
     "proxydirs": "node scripts/proxy-dirs.js",
     "postpack": "npm run clean",
     "prettier": "prettier --write \"{examples,src,benchmark}/**/*.{ts,tsx,js,jsx,css,md}\"",
-    "changelog": "node ./scripts/changelog.js",
+    "changelog": "node ./scripts/changelog.js"
   },
   "sideEffects": false,
   "main": "dist/boardgameio.js",
