@@ -11,11 +11,9 @@ require('rfc6902');
 require('./initialize-54269c98.js');
 require('./transport-6284017b.js');
 require('./base-3237f024.js');
-var socketio = require('./socketio-de4b8f3b.js');
+var local = require('./local-355cd0df.js');
 require('./master-1adf0441.js');
-require('socket.io-client');
 
 
 
-exports.Local = socketio.Local;
-exports.SocketIO = socketio.SocketIO;
+exports.Local = local.Local;

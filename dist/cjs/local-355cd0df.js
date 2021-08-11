@@ -1,8 +1,9 @@
-import { y as sync, C as update, t as reset, D as patch } from './turn-order-c966e1cb.js';
-import { T as Transport } from './transport-0079de87.js';
-import { S as Sync } from './base-13e38c3e.js';
-import { M as Master } from './master-1acda6ca.js';
-import ioNamespace__default from 'socket.io-client';
+'use strict';
+
+var turnOrder = require('./turn-order-183d6eb6.js');
+var transport = require('./transport-6284017b.js');
+var base = require('./base-3237f024.js');
+var master = require('./master-1adf0441.js');
 
 /*
  * Copyright 2017 The boardgame.io Authors
@@ -14,7 +15,7 @@ import ioNamespace__default from 'socket.io-client';
 /**
  * InMemory data storage.
  */
-class InMemory extends Sync {
+class InMemory extends base.Sync {
     /**
      * Creates a new InMemory storage.
      */
@@ -181,7 +182,7 @@ function GetBotPlayer(state, bots) {
  * Creates a local version of the master that the client
  * can interact with.
  */
-class LocalMaster extends Master {
+class LocalMaster extends master.Master {
     constructor({ game, bots, storageKey, persist }) {
         const clientCallbacks = {};
         const initializedBots = {};
@@ -235,7 +236,7 @@ class LocalMaster extends Master {
  * Transport interface that embeds a GameMaster within it
  * that you can connect multiple clients to.
  */
-class LocalTransport extends Transport {
+class LocalTransport extends transport.Transport {
     /**
      * Creates a new Mutiplayer instance.
      * @param {string} matchID - The game ID to connect to.
@@ -269,7 +270,7 @@ class LocalTransport extends Transport {
     async onUpdate(matchID, state, deltalog) {
         const currentState = this.store.getState();
         if (matchID == this.matchID && state._stateID >= currentState._stateID) {
-            const action = update(state, deltalog);
+            const action = turnOrder.update(state, deltalog);
             this.store.dispatch(action);
         }
     }
@@ -279,7 +280,7 @@ class LocalTransport extends Transport {
      */
     onSync(matchID, syncInfo) {
         if (matchID == this.matchID) {
-            const action = sync(syncInfo);
+            const action = turnOrder.sync(syncInfo);
             this.store.dispatch(action);
         }
     }
@@ -322,7 +323,7 @@ class LocalTransport extends Transport {
      * Dispatches a reset action, then requests a fresh sync from the master.
      */
     resetAndSync() {
-        const action = reset(null);
+        const action = turnOrder.reset(null);
         this.store.dispatch(action);
         this.connect();
     }
@@ -377,215 +378,4 @@ function Local({ bots, persist, storageKey } = {}) {
     };
 }
 
-/*
- * Copyright 2017 The boardgame.io Authors
- *
- * Use of this source code is governed by a MIT-style
- * license that can be found in the LICENSE file or at
- * https://opensource.org/licenses/MIT.
- */
-const io = ioNamespace__default;
-/**
- * SocketIO
- *
- * Transport interface that interacts with the Master via socket.io.
- */
-class SocketIOTransport extends Transport {
-    /**
-     * Creates a new Multiplayer instance.
-     * @param {object} socket - Override for unit tests.
-     * @param {object} socketOpts - Options to pass to socket.io.
-     * @param {object} store - Redux store
-     * @param {string} matchID - The game ID to connect to.
-     * @param {string} playerID - The player ID associated with this client.
-     * @param {string} credentials - Authentication credentials
-     * @param {string} gameName - The game type (the `name` field in `Game`).
-     * @param {string} numPlayers - The number of players.
-     * @param {string} server - The game server in the form of 'hostname:port'. Defaults to the server serving the client if not provided.
-     */
-    constructor({ socket, socketOpts, server, ...opts } = {}) {
-        super(opts);
-        this.server = server;
-        this.socket = socket;
-        this.socketOpts = socketOpts;
-        this.isConnected = false;
-        this.callback = () => { };
-        this.matchDataCallback = () => { };
-        this.chatMessageCallback = () => { };
-    }
-    /**
-     * Called when an action that has to be relayed to the
-     * game master is made.
-     */
-    onAction(state, action) {
-        const args = [
-            action,
-            state._stateID,
-            this.matchID,
-            this.playerID,
-        ];
-        this.socket.emit('update', ...args);
-    }
-    onChatMessage(matchID, chatMessage) {
-        const args = [
-            matchID,
-            chatMessage,
-            this.credentials,
-        ];
-        this.socket.emit('chat', ...args);
-    }
-    /**
-     * Connect to the server.
-     */
-    connect() {
-        if (!this.socket) {
-            if (this.server) {
-                let server = this.server;
-                if (server.search(/^https?:\/\//) == -1) {
-                    server = 'http://' + this.server;
-                }
-                if (server.slice(-1) != '/') {
-                    // add trailing slash if not already present
-                    server = server + '/';
-                }
-                this.socket = io(server + this.gameName, this.socketOpts);
-            }
-            else {
-                this.socket = io('/' + this.gameName, this.socketOpts);
-            }
-        }
-        // Called when another player makes a move and the
-        // master broadcasts the update as a patch to other clients (including
-        // this one).
-        this.socket.on('patch', (matchID, prevStateID, stateID, patch$1, deltalog) => {
-            const currentStateID = this.store.getState()._stateID;
-            if (matchID === this.matchID && prevStateID === currentStateID) {
-                const action = patch(prevStateID, stateID, patch$1, deltalog);
-                this.store.dispatch(action);
-                // emit sync if patch apply failed
-                if (this.store.getState()._stateID === currentStateID) {
-                    this.sync();
-                }
-            }
-        });
-        // Called when another player makes a move and the
-        // master broadcasts the update to other clients (including
-        // this one).
-        this.socket.on('update', (matchID, state, deltalog) => {
-            const currentState = this.store.getState();
-            if (matchID == this.matchID &&
-                state._stateID >= currentState._stateID) {
-                const action = update(state, deltalog);
-                this.store.dispatch(action);
-            }
-        });
-        // Called when the client first connects to the master
-        // and requests the current game state.
-        this.socket.on('sync', (matchID, syncInfo) => {
-            if (matchID == this.matchID) {
-                const action = sync(syncInfo);
-                this.matchDataCallback(syncInfo.filteredMetadata);
-                this.store.dispatch(action);
-            }
-        });
-        // Called when new player joins the match or changes
-        // it's connection status
-        this.socket.on('matchData', (matchID, matchData) => {
-            if (matchID == this.matchID) {
-                this.matchDataCallback(matchData);
-            }
-        });
-        this.socket.on('chat', (matchID, chatMessage) => {
-            if (matchID === this.matchID) {
-                this.chatMessageCallback(chatMessage);
-            }
-        });
-        // Keep track of connection status.
-        this.socket.on('connect', () => {
-            // Initial sync to get game state.
-            this.sync();
-            this.isConnected = true;
-            this.callback();
-        });
-        this.socket.on('disconnect', () => {
-            this.isConnected = false;
-            this.callback();
-        });
-    }
-    /**
-     * Disconnect from the server.
-     */
-    disconnect() {
-        this.socket.close();
-        this.socket = null;
-        this.isConnected = false;
-        this.callback();
-    }
-    /**
-     * Subscribe to connection state changes.
-     */
-    subscribe(fn) {
-        this.callback = fn;
-    }
-    subscribeMatchData(fn) {
-        this.matchDataCallback = fn;
-    }
-    subscribeChatMessage(fn) {
-        this.chatMessageCallback = fn;
-    }
-    /**
-     * Send a “sync” event to the server.
-     */
-    sync() {
-        if (this.socket) {
-            const args = [
-                this.matchID,
-                this.playerID,
-                this.credentials,
-                this.numPlayers,
-            ];
-            this.socket.emit('sync', ...args);
-        }
-    }
-    /**
-     * Dispatches a reset action, then requests a fresh sync from the server.
-     */
-    resetAndSync() {
-        const action = reset(null);
-        this.store.dispatch(action);
-        this.sync();
-    }
-    /**
-     * Updates the game id.
-     * @param {string} id - The new game id.
-     */
-    updateMatchID(id) {
-        this.matchID = id;
-        this.resetAndSync();
-    }
-    /**
-     * Updates the player associated with this client.
-     * @param {string} id - The new player id.
-     */
-    updatePlayerID(id) {
-        this.playerID = id;
-        this.resetAndSync();
-    }
-    /**
-     * Updates the credentials associated with this client.
-     * @param {string|undefined} credentials - The new credentials to use.
-     */
-    updateCredentials(credentials) {
-        this.credentials = credentials;
-        this.resetAndSync();
-    }
-}
-function SocketIO({ server, socketOpts } = {}) {
-    return (transportOpts) => new SocketIOTransport({
-        server,
-        socketOpts,
-        ...transportOpts,
-    });
-}
-
-export { Local as L, SocketIO as S };
+exports.Local = Local;

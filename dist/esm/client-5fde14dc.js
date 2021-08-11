@@ -1,9 +1,9 @@
 import { nanoid } from 'nanoid/non-secure';
 import './index-2aae2ea0.js';
 import { applyMiddleware, compose, createStore } from 'redux';
-import { A as ActionCreators, t as reset, u as undo, v as redo, w as PlayerView, M as MAKE_MOVE, G as GAME_EVENT, l as UNDO, m as REDO, R as RESET, o as PATCH, j as UPDATE, k as SYNC, d as STRIP_TRANSIENTS } from './turn-order-c966e1cb.js';
-import { P as ProcessGameConfig, C as CreateGameReducer, T as TransientHandlingMiddleware } from './reducer-736336ae.js';
-import { I as InitializeGame } from './initialize-63924043.js';
+import { A as ActionCreators, t as reset, u as undo, v as redo, w as PlayerView, M as MAKE_MOVE, G as GAME_EVENT, l as UNDO, m as REDO, R as RESET, o as PATCH, j as UPDATE, k as SYNC, d as STRIP_TRANSIENTS } from './turn-order-d6b87741.js';
+import { P as ProcessGameConfig, C as CreateGameReducer, T as TransientHandlingMiddleware } from './reducer-dfe1fd10.js';
+import { I as InitializeGame } from './initialize-0334ff41.js';
 import { T as Transport } from './transport-0079de87.js';
 
 /**

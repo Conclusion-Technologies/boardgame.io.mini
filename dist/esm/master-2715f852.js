@@ -1,8 +1,8 @@
 import { applyMiddleware, createStore } from 'redux';
-import { e as error, l as UNDO, m as REDO, M as MAKE_MOVE, w as PlayerView } from './turn-order-c966e1cb.js';
-import { P as ProcessGameConfig, C as CreateGameReducer, T as TransientHandlingMiddleware, I as IsLongFormMove } from './reducer-736336ae.js';
+import { e as error, l as UNDO, m as REDO, M as MAKE_MOVE, w as PlayerView } from './turn-order-d6b87741.js';
+import { P as ProcessGameConfig, C as CreateGameReducer, T as TransientHandlingMiddleware, I as IsLongFormMove } from './reducer-dfe1fd10.js';
 import { createPatch } from 'rfc6902';
-import { I as InitializeGame } from './initialize-63924043.js';
+import { I as InitializeGame } from './initialize-0334ff41.js';
 import { i as isSynchronous } from './base-13e38c3e.js';
 
 /**

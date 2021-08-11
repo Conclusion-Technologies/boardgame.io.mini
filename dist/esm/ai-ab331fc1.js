@@ -1,5 +1,5 @@
-import { C as CreateGameReducer } from './reducer-736336ae.js';
-import { B as Bot } from './mcts-bot-29ce9306.js';
+import { C as CreateGameReducer } from './reducer-dfe1fd10.js';
+import { B as Bot } from './mcts-bot-705050b7.js';
 
 /*
  * Copyright 2018 The boardgame.io Authors
